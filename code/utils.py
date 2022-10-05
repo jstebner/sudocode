@@ -12,14 +12,16 @@ def is_valid(grid: list[list[int]]) -> bool:
     """
 
     n = int(len(grid)**0.5)
-    # for each symbol
-        # perform sym check
-        # perform row check
-        # perform col check
-        # perform sub check
-
-    pass
-
+    symbols = {i for i in range(1, 1+n**2)}
+    for i in range(n**2):
+        if any(
+            {grid[i][j] for j in range(n**2)} != symbols,
+            {grid[j][i] for j in range(n**2)} != symbols,
+            {grid[3*(i//3)+j//3][3*(j%3)+(j%3)] for j in range(n**2)} != symbols  #REVIEW: test this
+        ):
+            return False
+    return True
+    
 
 # TODO: this one too
 def make_puzzle(n: int, k: int) -> tuple[str, str]:
