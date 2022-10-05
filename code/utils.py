@@ -17,7 +17,7 @@ def is_valid(grid: list[list[int]]) -> bool:
         if any(
             {grid[i][j] for j in range(n**2)} != symbols,
             {grid[j][i] for j in range(n**2)} != symbols,
-            {grid[3*(i//3)+j//3][3*(j%3)+(j%3)] for j in range(n**2)} != symbols  #REVIEW: test this
+            {grid[n*(i//n)+j//n][n*(i%n)+(j%n)] for j in range(n**2)} != symbols
         ):
             return False
     return True
