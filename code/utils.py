@@ -1,12 +1,12 @@
 import random
+import copy
 
 # TODO: this one
-def is_valid(grid: list[list[int]]) -> bool:
+def check_board(grid: list[list[int]]) -> bool:
     """
     Checks if the input solution to a sudoku is valid
 
     :param grid:    2D matrix of completed sudoku solution
-    :type grid:     list[list[int]]
     :rtype:         boolean
     :return:        if the sudoku is valid
     """
@@ -30,43 +30,62 @@ def make_puzzle(n: int, k: int) -> tuple[str, str]:
     row-wise repr of square sudoku puzzle of order N and K removed symbols.
 
     :param n:   order of square puzzle
-    :type n:    int
     :param k:   number of removed symbols
-    :type k:    int
     :rtype:     tuple[string, string]
     :return:    tuple of puzzle and solution of space-separated row-wise 
                 repr of sudoku puzzle
     """
 
-    # create n**2 x n**2 grid of 0s
-    solution = [[0 for _ in range(n**2)] for _ in range(n**2)]
-    
-    # fill in n groups along diagonal
-    for group in range(n):
-        subgrid = list(range(1, 1+n**2))
-        random.shuffle(subgrid)
-        for i, val in enumerate(subgrid):
-            solution[group*n + i//n][group*n + i%n] = val
     
     # backtrack fill remaining 0s
-    
-    puzzle = solution.copy()
+    def is_possible(r: int, c: int, val: int) -> bool:
+        return not any([
+            val in solution[r],
+            val in [solution[i][c] for i in range(n**2)],
+            val in [solution[n*((n*(r//n) + c//n)//n)+i//n][n*(((n*(r//n) + c//n))%n)+(i%n)] for i in range(n**2)]
+        ])
 
+    count = 0
+    # DEBUG: it solves it but at the end it resets all the hints :(
+    def solve():
+        nonlocal solution
+        for r in range(n**2):
+            for c in range(n**2):
+                if solution[r][c] != 0:
+                    continue
+                for num in range(1,1+n**2):
+                    if is_possible(r, c, num):
+                        solution[r][c] = num
+                        solve()
+                        solution[r][c] = 0
+                return
+
+    # create n**2 x n**2 grid of 0s
+    solution = [[0 for _ in range(n**2)] for _ in range(n**2)]
+    while any([0 in row for row in solution]):
+        # fill in n groups along diagonal
+        for group in range(n):
+            subgrid = list(range(1, 1+n**2))
+            random.shuffle(subgrid)
+            for i, val in enumerate(subgrid):
+                solution[group*n + i//n][group*n + i%n] = val
+        solve()
+
+    puzzle = solution.copy()
     # remove k symbols randomly
 
     return stringify(puzzle), stringify(solution)
 
 
-def pretty_print(matrix: list[list[int]]) -> None:
+def pretty_print(grid: list[list[int]]) -> None:
     """
     Prints a matrix but pretty
 
     :param matrix:  2D array of integers
-    :type matrix:   list[list[int]]
     :rtype:         void
     :return:        None
     """
-
+    matrix = copy.deepcopy(grid)
     n_sqr = len(matrix)
     max_len = 0
     for r in range(n_sqr):
@@ -82,7 +101,6 @@ def stringify(grid: list[list[int]]) -> str:
     to a space-separated row-wise repr of the same puzzle
 
     :param grid:    2D grid of ints
-    :type grid:     list[list[int]]
     :rtype:         string
     :return:        space-separated row-wise repr of input puzzle
     """
@@ -96,7 +114,6 @@ def matrixify(flat: str) -> list[list[int]]:
     to a 2D grid of ints repring the same puzzle
 
     :param flat:    space-separated row-wise repr of sudoku
-    :type flat:     string
     :rtype:         list[list[int]]
     :return:        2D grid of ints repring input puzzle
     """
@@ -106,6 +123,6 @@ def matrixify(flat: str) -> list[list[int]]:
 
 
 if __name__ == '__main__':
-    pzl, sln = make_puzzle(3, 0)
+    pzl, sln = make_puzzle(2, 0)
     # print(pzl)
     pretty_print(matrixify(sln))
