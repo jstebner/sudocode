@@ -1,8 +1,7 @@
 import random
 import copy
 
-# TODO: this one
-def check_board(grid: list[list[int]]) -> bool:
+def valid(grid: list[list[int]]) -> bool:
     """
     Checks if the input solution to a sudoku is valid
 
@@ -12,18 +11,23 @@ def check_board(grid: list[list[int]]) -> bool:
     """
 
     n = int(len(grid)**0.5)
-    symbols = {i for i in range(1, 1+n**2)}
+    symbols = set(range(1, 1+n**2))
     for i in range(n**2):
-        if any(
+        if any([
             {grid[i][j] for j in range(n**2)} != symbols,
             {grid[j][i] for j in range(n**2)} != symbols,
             {grid[n*(i//n)+j//n][n*(i%n)+(j%n)] for j in range(n**2)} != symbols
-        ):
+        ]):
             return False
     return True
+
+def filled(grid: list[list[int]]) -> bool:
+    return not any(
+        0 in row for row in grid
+    )
     
 
-# TODO: this one too
+# TODO: finish k removal
 def make_puzzle(n: int, k: int) -> tuple[str, str]:
     """
     Returns a tuple of puzzle and solution of space-separated 
@@ -45,31 +49,29 @@ def make_puzzle(n: int, k: int) -> tuple[str, str]:
             val in [solution[n*((n*(r//n) + c//n)//n)+i//n][n*(((n*(r//n) + c//n))%n)+(i%n)] for i in range(n**2)]
         ])
 
-    count = 0
-    # DEBUG: it solves it but at the end it resets all the hints :(
-    def solve():
-        nonlocal solution
+    def solve(grid):
         for r in range(n**2):
             for c in range(n**2):
-                if solution[r][c] != 0:
+                if grid[r][c] != 0:
                     continue
                 for num in range(1,1+n**2):
                     if is_possible(r, c, num):
-                        solution[r][c] = num
-                        solve()
-                        solution[r][c] = 0
+                        grid[r][c] = num
+                        solve(grid)
+                        if not filled(grid):
+                            grid[r][c] = 0
                 return
 
     # create n**2 x n**2 grid of 0s
     solution = [[0 for _ in range(n**2)] for _ in range(n**2)]
-    while any([0 in row for row in solution]):
+    while not valid(solution):
         # fill in n groups along diagonal
         for group in range(n):
             subgrid = list(range(1, 1+n**2))
             random.shuffle(subgrid)
             for i, val in enumerate(subgrid):
                 solution[group*n + i//n][group*n + i%n] = val
-        solve()
+        solve(solution)
 
     puzzle = solution.copy()
     # remove k symbols randomly
