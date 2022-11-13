@@ -9,6 +9,9 @@ def valid(grid: list[list[int]]) -> bool:
     :rtype:         boolean
     :return:        if the sudoku is valid
     """
+    
+    if not filled(grid):
+        return False
 
     n = int(len(grid)**0.5)
     symbols = set(range(1, 1+n**2))
@@ -23,7 +26,7 @@ def valid(grid: list[list[int]]) -> bool:
 
 def filled(grid: list[list[int]]) -> bool:
     return not any(
-        0 in row for row in grid
+        ele == 0 or type(ele) == set for row in grid for ele in row
     )
     
 
