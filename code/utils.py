@@ -1,15 +1,7 @@
-import random
-import copy
+from random import shuffle
+from copy import deepcopy
 
 def valid(grid: list[list[int]]) -> bool:
-    """
-    Checks if the input solution to a sudoku is valid
-
-    :param grid:    2D matrix of completed sudoku solution
-    :rtype:         boolean
-    :return:        if the sudoku is valid
-    """
-    
     if not filled(grid):
         return False
 
@@ -32,19 +24,6 @@ def filled(grid: list[list[int]]) -> bool:
 
 # TODO: finish k removal
 def make_puzzle(n: int, k: int) -> tuple[str, str]:
-    """
-    Returns a tuple of puzzle and solution of space-separated 
-    row-wise repr of square sudoku puzzle of order N and K removed symbols.
-
-    :param n:   order of square puzzle
-    :param k:   number of removed symbols
-    :rtype:     tuple[string, string]
-    :return:    tuple of puzzle and solution of space-separated row-wise 
-                repr of sudoku puzzle
-    """
-
-    
-    # backtrack fill remaining 0s
     def is_possible(r: int, c: int, val: int) -> bool:
         return not any([
             val in solution[r],
@@ -71,26 +50,24 @@ def make_puzzle(n: int, k: int) -> tuple[str, str]:
         # fill in n groups along diagonal
         for group in range(n):
             subgrid = list(range(1, 1+n**2))
-            random.shuffle(subgrid)
+            shuffle(subgrid)
             for i, val in enumerate(subgrid):
                 solution[group*n + i//n][group*n + i%n] = val
         solve(solution)
 
-    puzzle = solution.copy()
     # remove k symbols randomly
+    puzzle = deepcopy(solution)
+    rmv_idxs = list(range(0, n**4))
+    shuffle(rmv_idxs)
+    rmv_idxs = [(idx//n**2, idx%n**2) for idx in rmv_idxs[:k]]
+    for x, y in rmv_idxs:
+        puzzle[x][y] = 0
 
     return stringify(puzzle), stringify(solution)
 
 
 def pretty_print(grid: list[list[int]]) -> None:
-    """
-    Prints a matrix but pretty
-
-    :param matrix:  2D array of integers
-    :rtype:         void
-    :return:        None
-    """
-    matrix = copy.deepcopy(grid)
+    matrix = deepcopy(grid)
     n_sqr = len(matrix)
     max_len = 0
     for r in range(n_sqr):
@@ -101,33 +78,19 @@ def pretty_print(grid: list[list[int]]) -> None:
 
 
 def stringify(grid: list[list[int]]) -> str:
-    """
-    Converts a 2D grid of a square sudoku puzzle and converts it
-    to a space-separated row-wise repr of the same puzzle
-
-    :param grid:    2D grid of ints
-    :rtype:         string
-    :return:        space-separated row-wise repr of input puzzle
-    """
-    
     return " ".join([" ".join(list(map(str, row))) for row in grid])
 
 
 def matrixify(flat: str) -> list[list[int]]:
-    """
-    Converts a space-separated row-wise repr of a square sudoku puzzle 
-    to a 2D grid of ints repring the same puzzle
-
-    :param flat:    space-separated row-wise repr of sudoku
-    :rtype:         list[list[int]]
-    :return:        2D grid of ints repring input puzzle
-    """
     flat = list(map(int, flat.split()))
     n = int(len(flat)**(1/4))
     return [[flat[i*n**2 + j] for j in range(n**2)] for i in range(n**2)]
 
 
 if __name__ == '__main__':
-    pzl, sln = make_puzzle(2, 0)
+    pzl, sln = make_puzzle(3, 17)
     # print(pzl)
+    print(sln)
     pretty_print(matrixify(sln))
+    print(pzl)
+    pretty_print(matrixify(pzl))
