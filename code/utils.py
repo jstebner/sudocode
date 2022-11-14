@@ -16,13 +16,13 @@ def valid(grid: list[list[int]]) -> bool:
             return False
     return True
 
+
 def filled(grid: list[list[int]]) -> bool:
     return not any(
         ele == 0 or type(ele) == set for row in grid for ele in row
     )
     
-
-# TODO: finish k removal
+    
 def make_puzzle(n: int, k: int) -> tuple[str, str]:
     def is_possible(r: int, c: int, val: int) -> bool:
         return not any([
@@ -74,7 +74,7 @@ def pretty_print(grid: list[list[int]]) -> None:
         for c in range(n_sqr):
             matrix[r][c] = str(matrix[r][c])
             max_len = max(len(matrix[r][c]), max_len)
-    print("\n".join(" ".join([val.rjust(max_len) for val in row]) for row in matrix))
+    print("\n".join(" ".join([val.rjust(max_len) if val != '0' else ' '*max_len for val in row]) for row in matrix))
 
 
 def stringify(grid: list[list[int]]) -> str:
@@ -88,8 +88,8 @@ def matrixify(flat: str) -> list[list[int]]:
 
 
 if __name__ == '__main__':
-    pzl, sln = make_puzzle(3, 17)
-    # print(pzl)
+    pzl, sln = make_puzzle(3, 3**4-17)
+    print(pzl)
     print(sln)
     pretty_print(matrixify(sln))
     print(pzl)
