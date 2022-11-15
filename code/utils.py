@@ -31,7 +31,7 @@ def make_puzzle(n: int, k: int) -> tuple[str, str]:
             val in [solution[n*((n*(r//n) + c//n)//n)+i//n][n*(((n*(r//n) + c//n))%n)+(i%n)] for i in range(n**2)]
         ])
 
-    def solve(grid):
+    def solve(grid: list[list[int]]) -> list[list[int]]:
         for r in range(n**2):
             for c in range(n**2):
                 if grid[r][c] != 0:
@@ -53,6 +53,7 @@ def make_puzzle(n: int, k: int) -> tuple[str, str]:
             shuffle(subgrid)
             for i, val in enumerate(subgrid):
                 solution[group*n + i//n][group*n + i%n] = val
+        # pretty_print((solution))
         solve(solution)
 
     # remove k symbols randomly
@@ -88,9 +89,9 @@ def matrixify(flat: str) -> list[list[int]]:
 
 
 if __name__ == '__main__':
-    pzl, sln = make_puzzle(3, 3**4-17)
-    print(pzl)
-    print(sln)
-    pretty_print(matrixify(sln))
-    print(pzl)
+    pzl, sln = make_puzzle(4, 4**4-30)
+    # print(pzl)
+    # print(sln)
+    # pretty_print(matrixify(sln))
+    # print(pzl)
     pretty_print(matrixify(pzl))
