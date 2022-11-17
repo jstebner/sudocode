@@ -27,13 +27,45 @@ def solve_BT(grid: list[list[int]], n: int) -> list[list[int]]:
                         grid[r][c] = 0
             return
 
+def get_row(n, r, c):
+    return [(r,y) for y in range(n**2) if y != c]
 
-def solve_CP(grid: list[list[int]], n: int) -> list[list[int]]:
+def get_col(n, r, c):
+    return [(x,c) for x in range(n**2) if x != r]
+
+# TODO: group selection
+def get_grp(n, r, c):
     pass
 
+
+# TODO: all this mfer
+def solve_CP(grid: list[list[int]], n: int) -> list[list[int]]:
+    if any([0 in row for row in grid]):
+        for r in range(n**2):
+            for c in range(n**2):
+                if grid[r][c] != 0:
+                    continue
+                states = set()
+                for sym in range(1, 1+n**2):
+                    if is_possible(grid, n, r, c, sym):
+                        states.add(sym)
+                grid[r][c] = states
+    updates = 1
+    while updates > 0:
+        updates = 0
+        for r in range(n**2):
+            for c in range(n**2):
+                if type(grid[r][c]) != set:
+                    continue
+                if len(grid[r][c]) == 0:
+                    return
+                if len(grid[r][c]) == 1:
+                    grid[r][c] = set.pop()
+                    
+    
 if __name__ =='__main__':
-    n = 6
-    k = 200
+    n = 4
+    k = 50
     pzl, sln = make_puzzle(n, k)
     maybe_sln = matrixify(pzl)
     print('PUZZLE:')
