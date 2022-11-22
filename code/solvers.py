@@ -65,7 +65,7 @@ def solve_CP(grid: list[list[int]], n: int) -> list[list[int]]:
     
 if __name__ =='__main__':
     n = 4
-    k = 200
+    k = 64
     pzl, sln = make_puzzle(n, k)
     maybe_sln = matrixify(pzl)
     print('PUZZLE:')

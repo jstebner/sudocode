@@ -24,11 +24,14 @@ def filled(grid: list[list[int]]) -> bool:
     
     
 def make_puzzle(n: int, k: int) -> tuple[str, str]:
+    range_n_sqr = range(n**2)
+    
     def is_possible(r: int, c: int, val: int) -> bool:
+        grp_idx = n*(r//n) + c//n
         return not any([
             val in solution[r],
-            val in [solution[i][c] for i in range(n**2)],
-            val in [solution[n*((n*(r//n) + c//n)//n)+i//n][n*(((n*(r//n) + c//n))%n)+(i%n)] for i in range(n**2)]
+            val in [solution[i][c] for i in range_n_sqr],
+            val in [solution[n*(grp_idx//n)+(i//n)][n*(grp_idx%n)+(i%n)] for i in range_n_sqr] # TODO: this mfer slow as hell
         ])
 
     def solve(grid: list[list[int]]) -> list[list[int]]:
@@ -89,7 +92,7 @@ def matrixify(flat: str) -> list[list[int]]:
 
 
 if __name__ == '__main__':
-    pzl, sln = make_puzzle(4, 4**4-30)
+    pzl, sln = make_puzzle(3, 64)
     # print(pzl)
     # print(sln)
     # pretty_print(matrixify(sln))

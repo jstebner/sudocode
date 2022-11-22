@@ -1,18 +1,33 @@
 import os
 from utils import *
 import pandas as pd
-from time import time
+from time import process_time_ns
+from datetime import datetime
+
+def get_time():
+    return datetime.now().strftime("%m/%d/%Y %H:%M:%S.%f")
 
 if __name__ == '__main__':
     os.chdir(os.path.join(os.path.dirname(__file__), '..'))
     
     cols = ['n','k','pzl']
-    data = []
 
-    for n in range(2, 7):
-        for k in range(1, 65):
-            for _ in range(40):
-                pass
+    n = 3
+    with open(f'./data/n{n}.csv', 'w') as file:
+        file.write("n,k,pzl\n")
+        for k in range(1, 52*n-91): # formula for largest k, pretty much chosen arbitrarily
+            for _ in range(30): # 30 because statistical significance or smthn like that
+                print(f"{get_time()}: making n:{n} k:{k}")
+                start = process_time_ns()
+                
+                pzl, sln = make_puzzle(n, k)
+                # print(pzl)
+                
+                end = process_time_ns()
+                print(f"{get_time()}: finished, took {round(end-start, 4)} s")
+                file.write(f"{n},{k},{pzl}\n")
+            # quit()
+                    
 
     # df = pd.DataFrame(data, columns=cols)
     # print(df)
