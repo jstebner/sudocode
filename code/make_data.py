@@ -8,11 +8,11 @@ def get_time():
     return datetime.now().strftime("%m/%d/%Y %H:%M:%S.%f")
 
 if __name__ == '__main__':
-    os.chdir(os.path.join(os.path.dirname(__file__), '..'))
+    os.chdir(os.path.join(os.path.dirname(__file__), '..')) # move to root of project
     
-    cols = ['n','k','pzl']
+    # cols = ['n','k','pzl']
 
-    n = 3
+    n = 5
     with open(f'./data/n{n}.csv', 'w') as file:
         file.write("n,k,pzl\n")
         for k in range(1, 52*n-91): # formula for largest k, pretty much chosen arbitrarily
@@ -24,7 +24,7 @@ if __name__ == '__main__':
                 # print(pzl)
                 
                 end = process_time_ns()
-                print(f"{get_time()}: finished, took {round(end-start, 4)} s")
+                print(f"{get_time()}: finished, took {round((end-start)/(10e9), 4)} s")
                 file.write(f"{n},{k},{pzl}\n")
             # quit()
                     

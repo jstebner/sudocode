@@ -33,12 +33,19 @@ def get_row(n, r, c):
 def get_col(n, r, c):
     return [(x,c) for x in range(n**2) if x != r]
 
-# TODO: group selection
 def get_grp(n, r, c):
-    pass
+    grp_idx = n*(r//n) + c//n
+    idcs = [(n*(grp_idx//n)+(i//n),n*(grp_idx%n)+(i%n)) for i in range(n**2)]
+    idcs.remove((r,c))
+    return idcs
+
+def get_adj(n,r,c):
+    return list(set(
+        get_row(n,r,c) + get_col(n,r,c) + get_grp(n,r,c)
+    ))
 
 
-# TODO: all this mfer
+# TODO: this guy
 def solve_CP(grid: list[list[int]], n: int) -> list[list[int]]:
     if any([0 in row for row in grid]):
         for r in range(n**2):
@@ -59,8 +66,38 @@ def solve_CP(grid: list[list[int]], n: int) -> list[list[int]]:
                     continue
                 if len(grid[r][c]) == 0:
                     return
-                if len(grid[r][c]) == 1:
-                    grid[r][c] = set.pop()
+                
+                match len(grid[r][c]):
+                    case 1: # singleton collapse
+                        grid[r][c] = grid[r][c].pop()
+                        for y,x in get_adj(n,r,c):
+                            if type(grid[y][x]) == set:
+                                grid[y][x] -= grid[r][c]
+                                updates += 1
+                        continue
+                    
+                    case 2 | 3: # polyzygotic propagation (can be >3)
+                        size = len(grid[r][c])
+                        for get_subset in [get_row, get_col, get_grp]:
+                            subset = get_subset(n,r,c)
+                            count = 1
+                            for y,x in subset: # check for polyzygotes
+                                if grid[r][c] == grid[y][x]:
+                                    count += 1
+                            if count < size: # not enough for implication
+                                continue
+                            elif count > size: # invalid assumption
+                                return
+                            
+                            for y,x in subset:
+                                if grid[y][x] != grid[r][c]:
+                                    grid[y][x] -= grid[r][c]
+                                    updates += 1
+                    # more propagation checks can be added in series here
+                
+                # elimination collapse
+                    
+                
                     
     
 if __name__ =='__main__':

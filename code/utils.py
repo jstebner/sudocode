@@ -22,7 +22,6 @@ def filled(grid: list[list[int]]) -> bool:
         ele == 0 or type(ele) == set for row in grid for ele in row
     )
     
-    
 def make_puzzle(n: int, k: int) -> tuple[str, str]:
     range_n_sqr = range(n**2)
     
@@ -31,10 +30,13 @@ def make_puzzle(n: int, k: int) -> tuple[str, str]:
         return not any([
             val in solution[r],
             val in [solution[i][c] for i in range_n_sqr],
-            val in [solution[n*(grp_idx//n)+(i//n)][n*(grp_idx%n)+(i%n)] for i in range_n_sqr] # TODO: this mfer slow as hell
+            val in [solution[n*(grp_idx//n)+(i//n)][n*(grp_idx%n)+(i%n)] for i in range_n_sqr] # TODO: this dude slow as hell
         ])
 
     def solve(grid: list[list[int]]) -> list[list[int]]:
+        nonlocal rec_calls
+        # if rec_calls > 1000000:
+        #     return
         for r in range(n**2):
             for c in range(n**2):
                 if grid[r][c] != 0:
@@ -42,10 +44,12 @@ def make_puzzle(n: int, k: int) -> tuple[str, str]:
                 for num in range(1,1+n**2):
                     if is_possible(r, c, num):
                         grid[r][c] = num
+                        rec_calls += 1
                         solve(grid)
                         if not filled(grid):
                             grid[r][c] = 0
                 return
+            
 
     # create n**2 x n**2 grid of 0s
     solution = [[0 for _ in range(n**2)] for _ in range(n**2)]
@@ -57,7 +61,9 @@ def make_puzzle(n: int, k: int) -> tuple[str, str]:
             for i, val in enumerate(subgrid):
                 solution[group*n + i//n][group*n + i%n] = val
         # pretty_print((solution))
+        rec_calls = 0
         solve(solution)
+    print(rec_calls)
 
     # remove k symbols randomly
     puzzle = deepcopy(solution)
