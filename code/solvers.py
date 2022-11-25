@@ -8,12 +8,6 @@ def is_possible(grid: list[list[int]], n:int, r: int, c: int, val: int) -> bool:
         val in [grid[i][c] for i in range(n**2)],
         val in [grid[n*((n*(r//n) + c//n)//n)+i//n][n*(((n*(r//n) + c//n))%n)+(i%n)] for i in range(n**2)]
     ])
-    
-
-def filled(grid: list[list[int]]) -> bool:
-    return not any(
-        ele == 0 or type(ele) == set for row in grid for ele in row
-    )
 
 
 def get_row(n, r, c):
@@ -53,7 +47,7 @@ def solve(method: str, grid: list[list[int]]):
                             grid[r][c] = 0
                 return
 
-    def solve_CP(grid: list[list[int]], n: int) -> list[list[int]]:
+    def solve_CP(grid: list[list[int]], n: int) -> list[list[int]]: # DEBUG: this sometimes doesnt solve pzls
         nonlocal rec_calls
         if any([0 in row for row in grid]): # create state spaces 
             for r in range(n**2):
@@ -68,8 +62,8 @@ def solve(method: str, grid: list[list[int]]):
         updates = 1
         while updates > 0: # prune search space
             updates = 0
-            print("new loop")
-            pretty_print(grid)
+            # print("new loop")
+            # pretty_print(grid)
             for r in range(n**2):
                 for c in range(n**2):
                     if type(grid[r][c]) != set:
@@ -79,13 +73,13 @@ def solve(method: str, grid: list[list[int]]):
                     
                     match len(grid[r][c]):
                         case 1: # singleton collapse
-                            print(f'collapsing ({r},{c}) by singleton')
+                            # print(f'collapsing ({r},{c}) by singleton')
                             for y,x in get_adj(n,r,c): # propagate change
                                 if type(grid[y][x]) == set:
                                     grid[y][x] -= grid[r][c]
                             updates += 1
                             grid[r][c] = grid[r][c].pop()
-                            pretty_print(grid)
+                            # pretty_print(grid)
                             continue
                         
                         case 2 | 3: # polyzygotic propagation (can be >3 but eh)
@@ -102,10 +96,10 @@ def solve(method: str, grid: list[list[int]]):
                                     return
                                 
                                 for y,x in subset:
-                                    if type(grid[y][x]) == set and grid[y][x] != grid[r][c]:
-                                        print(f'propagating ({r},{c}) to ({y},{x})')
+                                    if type(grid[y][x]) == set and grid[y][x] != grid[r][c] and len(grid[r][c].intersection(grid[y][x])):
+                                        # print(f'propagating ({r},{c}) to ({y},{x})')
                                         grid[y][x] -= grid[r][c]
-                                        pretty_print(grid)
+                                        # pretty_print(grid)
                                         updates += 1
                     # more propagation checks can be added in series here
                     
@@ -116,19 +110,20 @@ def solve(method: str, grid: list[list[int]]):
                                 if type(grid[y][x]) == set and symbol in grid[y][x]:
                                     break
                             else: # only runs if no instance of symbol is found
-                                print(f'collapsing ({r},{c}) by elimination')
+                                # print(f'collapsing ({r},{c}) by elimination')
+                                grid[r][c] = {symbol}
                                 for y,x in get_adj(n,r,c): # propagate change
                                     if type(grid[y][x]) == set:
                                         grid[y][x] -= grid[r][c]
                                 updates += 1
                                 grid[r][c] = symbol
-                                pretty_print(grid)
+                                # pretty_print(grid)
                                 break
                         else: # antipattern i use way too much for scuffed control flow
                             continue
                         break
-            print()
-        # backtrack 
+            # print()
+        # backtrack
         r_min, c_min = None, None
         for r in range(n**2):
             for c in range(n**2):
@@ -141,15 +136,18 @@ def solve(method: str, grid: list[list[int]]):
         if [r_min, c_min] != [None, None]:
             backup = deepcopy(grid)
             for symbol in grid[r_min][c_min]:
-                grid[r_min][c_min] = symbol
-                rec_calls += 1
-                print(f'guessing {symbol} for ({r_min}, {c_min})')
+                # print(f'guessing {symbol} for ({r_min}, {c_min})')
+                grid[r_min][c_min] = {symbol}
                 for y,x in get_adj(n,r_min,c_min): # propagate change
                     if type(grid[y][x]) == set:
                         grid[y][x] -= grid[r_min][c_min]
+                grid[r_min][c_min] = symbol
+                rec_calls += 1
                 solve_CP(grid, n)
-                if not filled(grid):
+                if not valid(grid):
                     grid = deepcopy(backup)
+                else:
+                    break
         
     n = int(len(grid)**0.5)
     solve_function = {'bt':solve_BT, 'cp':solve_CP}[method.lower()]
@@ -162,9 +160,10 @@ def solve(method: str, grid: list[list[int]]):
                              
     
 if __name__ =='__main__':
-    n = 2
-    k = 12
+    n = 3
+    k = 60
     pzl, sln = make_puzzle(n, k)
+
 
     maybe_sln = matrixify(pzl)
     rec_calls = 0
@@ -173,6 +172,8 @@ if __name__ =='__main__':
     pretty_print(maybe_sln)
     
     print(f"valid: {valid(maybe_sln)}")
+    if not valid(maybe_sln):
+        print(pzl)
 
     # for mthd in ['bt', 'cp']:
     #     maybe_sln = matrixify(pzl)
@@ -183,3 +184,6 @@ if __name__ =='__main__':
     #     print("  valid" if valid(maybe_sln) else "  invalid")
     #     print("  matches sol" if stringify(maybe_sln)==sln else "  dont match sol")
     #     print(f'  {round(time*10e-9, 4)} s, {recs} calls')
+    #     if not valid(maybe_sln):
+    #         print(pzl)
+    #         pretty_print(maybe_sln)
