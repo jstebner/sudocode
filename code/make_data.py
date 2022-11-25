@@ -12,11 +12,12 @@ if __name__ == '__main__':
     
     # cols = ['n','k','pzl']
 
-    n = 5
+    n = 4
     with open(f'./data/n{n}.csv', 'w') as file:
         file.write("n,k,pzl\n")
-        for k in range(1, 52*n-91): # formula for largest k, pretty much chosen arbitrarily
-            for _ in range(30): # 30 because statistical significance or smthn like that
+        # for k in range(1, 52*n-91): # formula for largest k, pretty much chosen arbitrarily
+        for k in range(1, 201):
+            for _ in range(40): # 40 because statistical significance or smthn like that
                 print(f"{get_time()}: making n:{n} k:{k}")
                 start = process_time_ns()
                 

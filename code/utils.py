@@ -35,8 +35,8 @@ def make_puzzle(n: int, k: int) -> tuple[str, str]:
 
     def solve(grid: list[list[int]]) -> list[list[int]]:
         nonlocal rec_calls
-        # if rec_calls > 1000000:
-        #     return
+        if rec_calls > 1000000:
+            return
         for r in range(n**2):
             for c in range(n**2):
                 if grid[r][c] != 0:
@@ -63,7 +63,6 @@ def make_puzzle(n: int, k: int) -> tuple[str, str]:
         # pretty_print((solution))
         rec_calls = 0
         solve(solution)
-    print(rec_calls)
 
     # remove k symbols randomly
     puzzle = deepcopy(solution)
