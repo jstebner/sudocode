@@ -83,7 +83,7 @@ def pretty_print(grid: list[list[int]]) -> None:
         for c in range(n_sqr):
             matrix[r][c] = str(matrix[r][c])
             max_len = max(len(matrix[r][c]), max_len)
-    print("\n".join(" ".join([val.rjust(max_len) if val != '0' else ' '*max_len for val in row]) for row in matrix))
+    print("\n".join(" ".join([val.rjust(max_len) if val != '0' else ' '*max_len for val in row]) for row in matrix), end='\n\n')
 
 
 def stringify(grid: list[list[int]]) -> str:

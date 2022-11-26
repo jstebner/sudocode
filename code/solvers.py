@@ -62,8 +62,6 @@ def solve(method: str, grid: list[list[int]]):
         updates = 1
         while updates > 0: # prune search space
             updates = 0
-            # print("new loop")
-            # pretty_print(grid)
             for r in range(n**2):
                 for c in range(n**2):
                     if type(grid[r][c]) != set:
@@ -73,13 +71,11 @@ def solve(method: str, grid: list[list[int]]):
                     
                     match len(grid[r][c]):
                         case 1: # singleton collapse
-                            # print(f'collapsing ({r},{c}) by singleton')
                             for y,x in get_adj(n,r,c): # propagate change
                                 if type(grid[y][x]) == set:
                                     grid[y][x] -= grid[r][c]
                             updates += 1
                             grid[r][c] = grid[r][c].pop()
-                            # pretty_print(grid)
                             continue
                         
                         case 2 | 3: # polyzygotic propagation (can be >3 but eh)
@@ -97,9 +93,7 @@ def solve(method: str, grid: list[list[int]]):
                                 
                                 for y,x in subset:
                                     if type(grid[y][x]) == set and grid[y][x] != grid[r][c] and len(grid[r][c].intersection(grid[y][x])):
-                                        # print(f'propagating ({r},{c}) to ({y},{x})')
                                         grid[y][x] -= grid[r][c]
-                                        # pretty_print(grid)
                                         updates += 1
                     # more propagation checks can be added in series here
                     
@@ -110,14 +104,12 @@ def solve(method: str, grid: list[list[int]]):
                                 if type(grid[y][x]) == set and symbol in grid[y][x]:
                                     break
                             else: # only runs if no instance of symbol is found
-                                # print(f'collapsing ({r},{c}) by elimination')
                                 grid[r][c] = {symbol}
                                 for y,x in get_adj(n,r,c): # propagate change
                                     if type(grid[y][x]) == set:
                                         grid[y][x] -= grid[r][c]
                                 updates += 1
                                 grid[r][c] = symbol
-                                # pretty_print(grid)
                                 break
                         else: # antipattern i use way too much for scuffed control flow
                             continue
@@ -133,21 +125,24 @@ def solve(method: str, grid: list[list[int]]):
                     r_min, c_min = r, c
                 elif len(grid[r][c]) < len(grid[r_min][c_min]):
                     r_min, c_min = r, c
-        if [r_min, c_min] != [None, None]:
+        if [r_min, c_min] != [None, None]: # DEBUG: after a reset, the program does a weird thing with pointers and idk why
             backup = deepcopy(grid)
             for symbol in grid[r_min][c_min]:
-                # print(f'guessing {symbol} for ({r_min}, {c_min})')
-                grid[r_min][c_min] = {symbol}
-                for y,x in get_adj(n,r_min,c_min): # propagate change
+                print(f'guessing {symbol} for ({r_min},{c_min})')
+                for y,x in get_adj(n,r_min,c_min):
                     if type(grid[y][x]) == set:
-                        grid[y][x] -= grid[r_min][c_min]
+                        grid[y][x] -= {symbol}
                 grid[r_min][c_min] = symbol
                 rec_calls += 1
                 solve_CP(grid, n)
+                print(f'finished guess {symbol} for ({r_min}, {c_min})')
                 if not valid(grid):
-                    grid = deepcopy(backup)
+                    grid = backup
+                    print('guess no good, updating board')
+                    pretty_print(grid)
                 else:
-                    break
+                    print("ebic!")
+                    return
         
     n = int(len(grid)**0.5)
     solve_function = {'bt':solve_BT, 'cp':solve_CP}[method.lower()]
@@ -160,20 +155,21 @@ def solve(method: str, grid: list[list[int]]):
                              
     
 if __name__ =='__main__':
-    n = 3
-    k = 60
-    pzl, sln = make_puzzle(n, k)
+    # n = 3
+    # k = 60
+    # pzl, sln = make_puzzle(n, k)
 
 
-    maybe_sln = matrixify(pzl)
-    rec_calls = 0
-    time, recs = solve('cp', maybe_sln)
+    # maybe_sln = matrixify(pzl)
+    # rec_calls = 0
+    # time, recs = solve('cp', maybe_sln)
     
-    pretty_print(maybe_sln)
+    # pretty_print(maybe_sln)
     
-    print(f"valid: {valid(maybe_sln)}")
-    if not valid(maybe_sln):
-        print(pzl)
+    # print(f"valid: {valid(maybe_sln)}")
+    # if not valid(maybe_sln):
+    #     print(pzl)
+
 
     # for mthd in ['bt', 'cp']:
     #     maybe_sln = matrixify(pzl)
@@ -187,3 +183,11 @@ if __name__ =='__main__':
     #     if not valid(maybe_sln):
     #         print(pzl)
     #         pretty_print(maybe_sln)
+    
+    pzl = '0 8 0 0 2 0 0 0 0 0 6 0 0 0 9 0 0 0 9 0 0 0 0 8 3 1 0 2 3 0 0 0 0 0 0 0 4 0 0 0 5 0 0 0 0 0 0 9 0 0 0 5 4 0 0 0 0 0 3 7 1 0 0 0 0 0 0 8 4 0 0 0 0 0 0 6 0 0 0 0 0'
+    
+    maybe_sln = matrixify(pzl)
+    time, recs = solve("cp", maybe_sln)
+    
+    pretty_print(maybe_sln)
+    print(valid(maybe_sln))
