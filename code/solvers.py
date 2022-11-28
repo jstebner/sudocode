@@ -141,7 +141,7 @@ def solve(method: str, grid: list[list[int]]):
                 else:
                     return
     
-    # biolerplate for running solve functions
+    # boilerplate for running solve functions
     n = int(len(grid)**0.5)
     solve_function = {'bt':solve_BT, 'cp':solve_CP}[method.lower()]
     rec_calls = 0
