@@ -1,5 +1,6 @@
 from utils import *
 from time import process_time_ns
+import tracemalloc
 
 
 def is_possible(grid: list[list[int]], n:int, r: int, c: int, val: int) -> bool:
@@ -47,7 +48,7 @@ def solve(method: str, grid: list[list[int]]):
                             grid[r][c] = 0
                 return
 
-    def solve_CP(grid: list[list[int]], n: int) -> list[list[int]]: # DEBUG: this sometimes doesnt solve pzls
+    def solve_CP(grid: list[list[int]], n: int) -> list[list[int]]:
         nonlocal rec_calls
         if any([0 in row for row in grid]): # create state spaces 
             for r in range(n**2):
@@ -114,7 +115,6 @@ def solve(method: str, grid: list[list[int]]):
                         else: # antipattern i use way too much for scuffed control flow
                             continue
                         break
-            # print()
         # backtrack
         r_min, c_min = None, None
         for r in range(n**2):
@@ -125,39 +125,41 @@ def solve(method: str, grid: list[list[int]]):
                     r_min, c_min = r, c
                 elif len(grid[r][c]) < len(grid[r_min][c_min]):
                     r_min, c_min = r, c
-        if [r_min, c_min] != [None, None]: # DEBUG: after a reset, the program does a weird thing with pointers and idk why
+        if [r_min, c_min] != [None, None]:
             backup = deepcopy(grid)
             for symbol in grid[r_min][c_min]:
-                print(f'guessing {symbol} for ({r_min},{c_min})')
                 for y,x in get_adj(n,r_min,c_min):
                     if type(grid[y][x]) == set:
                         grid[y][x] -= {symbol}
                 grid[r_min][c_min] = symbol
                 rec_calls += 1
                 solve_CP(grid, n)
-                print(f'finished guess {symbol} for ({r_min}, {c_min})')
                 if not valid(grid):
-                    grid = backup
-                    print('guess no good, updating board')
-                    pretty_print(grid)
+                    for r in range(n**2):
+                        for c in range(n**2):
+                            grid[r][c] = backup[r][c]
                 else:
-                    print("ebic!")
                     return
-        
+    
+    # biolerplate for running solve functions
     n = int(len(grid)**0.5)
     solve_function = {'bt':solve_BT, 'cp':solve_CP}[method.lower()]
     rec_calls = 0
+    
+    tracemalloc.start()
     start = process_time_ns()
     solve_function(grid, n)
     end = process_time_ns()
+    tmotp = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
     
-    return end-start, rec_calls
+    return valid(grid), end-start, rec_calls, tmotp[1]
                              
     
 if __name__ =='__main__':
-    # n = 3
-    # k = 60
-    # pzl, sln = make_puzzle(n, k)
+    n = 4
+    k = 100
+    pzl, sln = make_puzzle(n, k)
 
 
     # maybe_sln = matrixify(pzl)
@@ -171,23 +173,21 @@ if __name__ =='__main__':
     #     print(pzl)
 
 
-    # for mthd in ['bt', 'cp']:
-    #     maybe_sln = matrixify(pzl)
-    #     rec_calls = 0
-    #     time, recs = solve(mthd, maybe_sln)
+    for mthd in ['bt', 'cp']:
+        maybe_sln = matrixify(pzl)
+        rec_calls = 0
+        is_valid, time, recs, mem = solve(mthd, maybe_sln)
         
-    #     print(mthd)
-    #     print("  valid" if valid(maybe_sln) else "  invalid")
-    #     print("  matches sol" if stringify(maybe_sln)==sln else "  dont match sol")
-    #     print(f'  {round(time*10e-9, 4)} s, {recs} calls')
-    #     if not valid(maybe_sln):
-    #         print(pzl)
-    #         pretty_print(maybe_sln)
+        print(mthd)
+        print(is_valid)
+        print("  matches sol" if stringify(maybe_sln)==sln else "  dont match sol")
+        print(f'  {round(time*10e-9, 4)} s, {recs} calls, {mem} B')
+        if not valid(maybe_sln):
+            print(pzl)
+            pretty_print(maybe_sln)
     
-    pzl = '0 8 0 0 2 0 0 0 0 0 6 0 0 0 9 0 0 0 9 0 0 0 0 8 3 1 0 2 3 0 0 0 0 0 0 0 4 0 0 0 5 0 0 0 0 0 0 9 0 0 0 5 4 0 0 0 0 0 3 7 1 0 0 0 0 0 0 8 4 0 0 0 0 0 0 6 0 0 0 0 0'
+    # maybe_sln = matrixify(pzl)
+    # time, recs = solve("cp", maybe_sln)
     
-    maybe_sln = matrixify(pzl)
-    time, recs = solve("cp", maybe_sln)
-    
-    pretty_print(maybe_sln)
-    print(valid(maybe_sln))
+    # pretty_print(maybe_sln)
+    # print(valid(maybe_sln))
