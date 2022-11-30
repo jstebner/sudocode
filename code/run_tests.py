@@ -1,6 +1,5 @@
 import os
-os.chdir(os.path.join(os.getcwd(),'..'))
-print(os.getcwd())
+os.chdir(os.path.join(os.path.dirname(__file__), '..'))
 
 from utils import *
 from solvers import *
@@ -15,11 +14,13 @@ if __name__ == '__main__':
         pd.read_csv('data/n2.csv'),
         pd.read_csv('data/n3.csv'),
         pd.read_csv('data/n4.csv')
-    ])
+    ], ignore_index=True)
+    
+    last_idx = len(pd.read_csv('out/results.csv'))
 
-    cols = ['n','k','pzl','bt_valid','bt_time_ns','bt_recs','bt_space_B','cp_valid','cp_time_ns','cp_recs','cp_space_B']
+    # cols = ['n','k','pzl','bt_valid','bt_time_ns','bt_recs','bt_space_B','cp_valid','cp_time_ns','cp_recs','cp_space_B']
     with open('out/results.csv', 'a') as file:
-        for i, row in data.iloc[2885:].iterrows():
+        for i, row in data.iloc[last_idx:].iterrows():
             res_row = [*row]
             for mthd in ['bt','cp']:
                 pzl = matrixify(row['pzl'])
