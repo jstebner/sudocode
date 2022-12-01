@@ -1,6 +1,15 @@
 from random import shuffle
 from copy import deepcopy
 
+def safety():
+    passwords = ['peanut butter', 'apple sauce', 'cilantro', 'computer monitor', 'ginger ale', 'supper time', 'shower curtain', 'u-turn', 'brussel sprouts', 'broccoli cheese soup', 'diatomic element', 'public urinal', 'carrot juice', 'bacon and eggs', 'automobile', 'taco bell chicken quesarito', 'sidewalk', 'double u', 'apple cider vinegar', 'cyclohexane', 'clorox disinfecting wipes', 'whiteboard', 'j-walking']
+    shuffle(passwords)
+    
+    print("WARNING: Running this program will overwrite already created files")
+    print(f'To proceed, please enter the following: {passwords[0]}')
+    if input('>') != passwords[0]:
+        quit()
+
 def valid(grid: list[list[int]]) -> bool:
     if not filled(grid):
         return False

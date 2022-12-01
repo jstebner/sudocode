@@ -12,6 +12,8 @@ if __name__ == '__main__':
     
     # cols = ['n','k','pzl']
 
+    safety()
+
     n = 3
     with open(f'./data/n{n}.csv', 'w') as file:
         file.write("n,k,pzl\n")
